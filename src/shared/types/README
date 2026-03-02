@@ -1,0 +1,28 @@
+# shared/types
+
+## Назначение
+
+`shared/types` содержит **общие типы приложения**, которые используются в разных слоях.
+
+---
+
+## Что входит
+
+### `router.types.ts`
+
+Типы для React Navigation:
+
+* `NewsDetailsSource` — откуда открыт экран деталей (`NewsList | Favorites`)
+* `NewsDetailsRouteArticle` — тип статьи в route params
+* `RootTabParamList` — типы tab-навигации
+* `RootStackParamList` — типы stack-навигации
+
+---
+
+## Зачем нужен
+
+Позволяет:
+
+* типизировать `navigate(...)`
+* типизировать `route.params`
+* избежать ошибок при передаче параметров между экранами

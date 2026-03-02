@@ -1,0 +1,67 @@
+# entities/session
+
+## Назначение
+
+Сущность `session` отвечает за **состояние пользовательской сессии**:
+
+* авторизован ли пользователь
+* включена ли биометрия
+* завершена ли инициализация сессии
+
+---
+
+## Что входит
+
+### `model/session.slice.ts`
+
+Redux slice для сессии.
+
+Что хранит:
+
+* `isAuthenticated`
+* `biometricsEnabled`
+* `initialized`
+
+Основные actions:
+
+* `setAuthenticated`
+* `setBiometricsEnabled`
+* `setSessionInitialized`
+* `logoutSession`
+
+---
+
+### `model/session.selectors.ts`
+
+Селекторы для чтения состояния сессии:
+
+* `selectIsAuthenticated`
+* `selectBiometricsEnabled`
+* `selectSessionInitialized`
+
+---
+
+### `model/session.storage.ts`
+
+Работа с `expo-secure-store` для сохранения сессионных данных.
+
+Что сохраняется:
+
+* `session_isAuthenticated`
+* `session_biometricsEnabled`
+
+Методы:
+
+* `saveAuth`
+* `getAuth`
+* `saveBiometricsEnabled`
+* `getBiometricsEnabled`
+* `clearSession`
+
+> Для `biometricsEnabled` значение по умолчанию — `true`, если ключ ещё не сохранён.
+
+---
+
+## Почему это `entities`
+
+`session` — базовая сущность приложения, от которой зависит навигация и поведение UI (auth flow), поэтому модуль находится в `entities`.

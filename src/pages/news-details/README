@@ -1,0 +1,27 @@
+# pages/news-details
+
+## Назначение
+
+Страница `news-details` показывает **детальную информацию о статье**.
+
+---
+
+## Что делает
+
+* получает `article` из route params
+* проверяет корректность данных (наличие `article.url`)
+* показывает контент статьи через виджеты:
+
+  * `NewsDetailsActions`
+  * `NewsDetailsContent`
+* открывает оригинал статьи во встроенном `WebView`
+* умеет переключаться между режимом деталей и `WebView`
+
+---
+
+## Используемые модули
+
+* `widgets/article-webview-viewer`
+* `widgets/news-details-actions`
+* `widgets/news-details-content`
+* `shared/ui/Page`

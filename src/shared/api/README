@@ -1,0 +1,21 @@
+# shared/api
+
+## Назначение
+
+`shared/api` содержит **базовую настройку RTK Query API** для всего приложения.
+
+---
+
+## Что делает
+
+* создаёт `baseApi` через `createApi`
+* настраивает `fetchBaseQuery`
+* задаёт `baseUrl` из `ENV.NEWS_API_BASE_URL`
+* добавляет `Content-Type: application/json`
+* объявляет `tagTypes` (`Article`, `Favorites`, `Session`)
+
+---
+
+## Зачем нужен
+
+`baseApi` используется как общая база для `injectEndpoints(...)` в сущностях/фичах (например, `entities/article`).

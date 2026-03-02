@@ -1,0 +1,35 @@
+# pages/news-list
+
+## Назначение
+
+Страница `news-list` показывает **ленты новостей** с поиском, фильтрами и пагинацией.
+
+---
+
+## Что делает
+
+* загружает новости через `useGetTopHeadlinesQuery`
+* поддерживает:
+
+  * поиск (с debounce)
+  * фильтр по категории
+  * фильтр по дате (`all / today / 7days`)
+* открывает статью в `NewsDetails`
+* реализует:
+
+  * pull-to-refresh
+  * infinite scroll (pagination)
+  * локальную фильтрацию по дате
+  * обработку ошибок и retry
+* отправляет локальное уведомление при появлении новых статей (кроме первого запуска)
+
+---
+
+## Используемые модули
+
+* `entities/article`
+* `features/news-filters`
+* `widgets/news-filter-panel`
+* `shared/lib/hooks`
+* `shared/lib/notifications`
+* `shared/ui/*`

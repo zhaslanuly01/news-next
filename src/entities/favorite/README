@@ -1,0 +1,73 @@
+# entities/favorite
+
+## Назначение
+
+Сущность `favorite` отвечает за **избранные новости**: хранение, управление состоянием и отображение карточки избранной статьи.
+
+---
+
+## Что входит
+
+### `model/favorite.types.ts`
+
+Тип `FavoriteArticle` — упрощённая модель статьи для сохранения в избранное.
+
+---
+
+### `model/favorite.slice.ts`
+
+Redux slice для избранного.
+
+Что хранит:
+
+* `items` — список избранных статей
+* `initialized` — флаг инициализации
+
+Основные actions:
+
+* `setFavorites`
+* `addFavorite`
+* `removeFavorite`
+* `toggleFavorite`
+
+---
+
+### `model/favorite.selectors.ts`
+
+Селекторы для работы с избранным:
+
+* `selectFavorites`
+* `selectIsFavoriteByUrl(url)` — проверка, добавлена ли статья в избранное
+
+---
+
+### `model/favorite.storage.ts`
+
+Работа с `AsyncStorage`:
+
+* `loadFavoritesFromStorage()` — загрузка избранного
+* `saveFavoritesToStorage(items)` — сохранение избранного
+
+Используется ключ:
+
+* `favorite_articles_v1`
+
+---
+
+### `ui/favorite-card/FavoriteCard.tsx`
+
+UI-компонент карточки избранной статьи.
+
+Что умеет:
+
+* показать изображение (если есть)
+* показать заголовок и описание
+* открыть статью (`onOpen`)
+* удалить из избранного (`onRemove`)
+
+---
+
+## Почему это `entities`
+
+`favorite` — это бизнес-сущность приложения (избранные статьи), которую используют разные страницы и фичи, поэтому она находится в слое `entities`.
+

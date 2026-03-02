@@ -1,0 +1,70 @@
+# entities/article
+
+## Назначение
+
+Сущность `article` описывает **новости** в приложении: типы данных, API-запросы и UI-компоненты для отображения статьи.
+
+---
+
+## Что входит
+
+### `model/article.types.ts`
+
+Типы для новостей и ответов News API:
+
+* `NewsSource` — источник новости
+* `Article` — модель статьи
+* `NewsApiResponse` — ответ API
+* `GetTopHeadlinesParams` — параметры top-headlines
+* `SearchEverythingParams` — параметры поиска
+
+---
+
+### `api/articleApi.ts`
+
+RTK Query endpoints для работы с News API:
+
+* `getTopHeadlines` — получение главных новостей (`/top-headlines`)
+* `searchEverything` — поиск новостей (`/everything`)
+
+Особенности:
+
+* собирает query params через `URLSearchParams`
+* использует `ENV.NEWS_API_KEY`
+* экспортирует готовые хуки:
+
+  * `useGetTopHeadlinesQuery`
+  * `useSearchEverythingQuery`
+
+---
+
+### `ui/NewsCard`
+
+UI-компонент карточки новости.
+
+Что показывает:
+
+* изображение (или placeholder, если его нет)
+* заголовок
+* описание (если есть)
+* источник
+* дату публикации
+
+Особенности:
+
+* `memo(...)` для уменьшения лишних ререндеров
+* `useMemo(...)` для форматирования даты
+* `onPress(article)` для перехода в детали
+
+---
+
+## Почему это `entities`
+
+`article` — это базовая бизнес-сущность приложения (новость), которую используют разные части системы:
+
+* страницы (`news-list`, `favorites`, `news-details`)
+* фичи (поиск, избранное и т.д.)
+* UI-виджеты
+
+Поэтому она находится в слое `entities`.
+

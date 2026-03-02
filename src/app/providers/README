@@ -1,0 +1,86 @@
+# app/providers
+
+## Назначение
+
+Папка `app/providers` отвечает за **глобальное хранилище состояния приложения (Redux Store)** и его подключение к React-дереву через `StoreProvider`.
+
+Здесь настраивается:
+
+* корневой Redux store
+* подключение reducers (слайсов)
+* подключение middleware (включая RTK Query)
+* экспорт типов `RootState` и `AppDispatch` для типизации по всему приложению
+
+---
+
+## Что входит в модуль
+
+### `store.ts`
+
+Создаёт и настраивает Redux store через `configureStore` из `@reduxjs/toolkit`.
+
+Подключённые reducers:
+
+* `session` — состояние пользовательской сессии (авторизация, биометрия, инициализация)
+* `favorites` — избранные статьи
+* `baseApi.reducerPath` — reducer RTK Query API (`baseApi`)
+
+Подключённые middleware:
+
+* стандартные middleware Redux Toolkit (`getDefaultMiddleware`)
+* `baseApi.middleware` — middleware RTK Query для кэширования, запросов, инвалидации и подписок
+
+Также экспортируются типы:
+
+* `RootState` — тип всего состояния store
+* `AppDispatch` — тип dispatch-функции приложения
+
+---
+
+### `StoreProvider.tsx`
+
+`StoreProvider` — React-обёртка над `Provider` из `react-redux`, которая передаёт `store` всему приложению.
+
+Используется в корневом `App.tsx`, чтобы любой компонент мог работать с Redux:
+
+* `useSelector(...)`
+* `useDispatch(...)`
+* RTK Query hooks (например, `useGetTopHeadlinesQuery`)
+
+---
+
+## Текущая конфигурация store
+
+### Reducers
+
+* **RTK Query API (`baseApi`)**
+
+  * хранит кэш запросов
+  * статусы загрузки/ошибок
+  * данные ответов с сервера
+
+* **`sessionReducer`**
+
+  * `isAuthenticated`
+  * `biometricsEnabled`
+  * `initialized`
+
+* **`favoritesReducer`**
+
+  * список избранных статей / состояние избранного 
+
+---
+
+## Middleware
+
+В store добавлен middleware RTK Query:
+
+* выполняет сетевые запросы
+* управляет жизненным циклом запросов
+* кэширует данные
+* обновляет подписки при повторном открытии экрана / фокусе (если настроено)
+* обрабатывает invalidation tags
+
+```txt id="2m8r8h"
+getDefaultMiddleware().concat(baseApi.middleware)
+```
