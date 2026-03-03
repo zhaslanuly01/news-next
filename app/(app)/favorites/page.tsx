@@ -1,5 +1,3 @@
-"use client";
-
 import { FavoritesPage } from "@/pages/favorites";
 
 export default function Favorites() {

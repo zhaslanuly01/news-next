@@ -1,46 +1,62 @@
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 import { Loader2, RefreshCw } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Article, NewsCard } from "@/entities/article";
 import { useGetTopHeadlinesQuery } from "@/entities/article/api/articleApi";
 import { Category, DateFilter } from "@/features/news-filters";
 import { useDebounce } from "@/shared/lib/hooks";
 import { sendLocalNewsNotification } from "@/shared/lib/notifications";
-import { Button } from "@/shared/ui/button";
 import { ErrorView, Loader, Page } from "@/shared/ui";
+import { Button } from "@/shared/ui/button";
 import { NewsFiltersPanel } from "@/widgets/news-filter-panel";
+
+type Props = {
+  initialPage: number;
+  initialArticles: Article[];
+  initialTotalResults: number;
+  initialQuery: {
+    q: string;
+    category?: Category;
+  };
+};
 
 const PAGE_SIZE = 20;
 
-export default function NewsListPage() {
+export default function NewsListPageClient({
+  initialPage,
+  initialArticles,
+  initialTotalResults,
+  initialQuery,
+}: Props) {
   const router = useRouter();
 
-  const [page, setPage] = useState(1);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const searchParams = useSearchParams();
+  const [page, setPage] = useState(initialPage);
+  const [articles, setArticles] = useState<Article[]>(initialArticles);
+  const [hasMore, setHasMore] = useState(
+    initialPage * PAGE_SIZE < initialTotalResults
+  );
+
+  const [searchQuery, setSearchQuery] = useState(initialQuery.q);
+  const [category, setCategory] = useState<Category | undefined>(
+    initialQuery.category
+  );
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshingLocal, setIsRefreshingLocal] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
 
-  const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
-
-  const [category, setCategory] = useState<Category | undefined>(undefined);
-  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
 
   const seenUrlsRef = useRef<Set<string>>(new Set());
   const isFirstLoadRef = useRef(true);
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
   const isLoadMoreLockedRef = useRef(false);
+
+  const shouldSkipFirstClientFetch = page === 1 && articles.length > 0;
 
   const queryArgs = useMemo(
     () => ({
@@ -53,8 +69,10 @@ export default function NewsListPage() {
     [page, debouncedQuery, category]
   );
 
-  const { data, isLoading, isError, error, refetch, isFetching } =
-    useGetTopHeadlinesQuery(queryArgs);
+  const { data, isLoading, isFetching, isError, error, refetch } =
+    useGetTopHeadlinesQuery(queryArgs, {
+      skip: shouldSkipFirstClientFetch,
+    });
 
   const filteredArticles = useMemo(() => {
     if (dateFilter === "all") return articles;
@@ -128,6 +146,23 @@ export default function NewsListPage() {
   const handleGoToFavorites = useCallback(() => {
     router.push(`/favorites`);
   }, [router]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams?.toString());
+
+    if (debouncedQuery) params.set("q", debouncedQuery);
+    else params.delete("q");
+
+    if (category) params.set("category", category);
+    else params.delete("category");
+
+    router.replace(`/news-list?${params.toString()}`, { scroll: false });
+
+    setPage(1);
+    setArticles([]);
+    setHasMore(true);
+  }, [debouncedQuery, category, router]);
+
   useEffect(() => {
     if (!data) return;
 
@@ -138,25 +173,12 @@ export default function NewsListPage() {
 
       const seen = new Set(prev.map((a) => a.url));
       const uniqueIncoming = incoming.filter((a) => !seen.has(a.url));
-
       return [...prev, ...uniqueIncoming];
     });
 
     const totalResults = data.totalResults ?? 0;
     setHasMore(page * PAGE_SIZE < totalResults);
-
-    setIsLoadingMore(false);
-    setIsRefreshingLocal(false);
-    isLoadMoreLockedRef.current = false;
   }, [data, page]);
-
-  useEffect(() => {
-    setPage(1);
-    setArticles([]);
-    setHasMore(true);
-    setIsLoadingMore(false);
-    isLoadMoreLockedRef.current = false;
-  }, [debouncedQuery, category]);
 
   useEffect(() => {
     if (!data?.articles?.length) return;
